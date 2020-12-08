@@ -7,62 +7,56 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ViewFlipper;
+import android.widget.RatingBar;
+import android.widget.TextView;
 
 public class ResultActivity extends AppCompatActivity {
-    Button btnStart, btnStop;
-    ViewFlipper flipper;
-
-    int[] imgvIds = {R.id.img1,R.id.img2,R.id.img3,R.id.img4,R.id.img5,R.id.img6,R.id.img7,R.id.img8,R.id.img9};
-    int[] imgResult = {R.drawable.r01, R.drawable.r02, R.drawable.r03, R.drawable.r04, R.drawable.r05, R.drawable.r06, R.drawable.r07, R.drawable.r08, R.drawable.r09};
-    String[] imgNames = {"노란 머리 여자아이", "미녀와 야수 벨", "인어공주 에리얼", "오로라 공주", "엘사 여왕", "백설공주", "올블랙 여자아이", "핑크 머리 여자아이", "흰 티를 입은 여자아이"};
-    ImageView[] imgvs = new ImageView[imgNames.length];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
-
-        btnStart = findViewById(R.id.btnStart); btnStop = findViewById(R.id.btnStop);
-        btnStart.setOnClickListener(btnListener); btnStop.setOnClickListener(btnListener);
-        flipper = findViewById(R.id.flipper);
-
-        flipper.setFlipInterval(1000);
-
+        setTitle("투표 결과");
         Intent intent = getIntent();
         int[] voteCount = intent.getIntArrayExtra("voteCount");
-        int temp1 = 0;
-        int temp2 = 0;
-        for(int i = 0;i < imgResult.length-1; i++) {
-            for(int j = i+1; j < imgResult.length; j++) {
-                if(voteCount[i] < voteCount[j]) {
-                    temp1 = voteCount[i];
-                    voteCount[i] = voteCount[j];
-                    voteCount[j] = temp1;
+        String[] imgNames = intent.getStringArrayExtra("imgNames");
+        TextView[] textVs = new TextView[imgNames.length];
+        RatingBar[] ratingBars = new RatingBar[imgNames.length];
 
-                    temp2 = imgResult[i];
-                    imgResult[i] = imgResult[j];
-                    imgResult[j] = temp2;
-                }
+        int[] textIds = {R.id.text1, R.id.text2, R.id.text3, R.id.text4, R.id.text5, R.id.text6, R.id.text7, R.id.text8, R.id.text9};
+        int[] ratingIds = {R.id.rating_bar1, R.id.rating_bar2, R.id.rating_bar3, R.id.rating_bar4, R.id.rating_bar5, R.id.rating_bar6, R.id.rating_bar7, R.id.rating_bar8, R.id.rating_bar9};
+        int[] imgFileNames = {R.drawable.r01, R.drawable.r02, R.drawable.r03, R.drawable.r04, R.drawable.r05, R.drawable.r06, R.drawable.r07, R.drawable.r08, R.drawable.r09};
+
+        int max=0;
+        int maxIndex=0;
+
+        for (int i=0; i < imgNames.length; i++){
+            if(voteCount[i] > max){
+                max = voteCount[i];
+                maxIndex = i;
             }
         }
 
-        for(int i=0; i<imgvIds.length; i++) {
-            imgvs[i] = findViewById(imgvIds[i]);
-            imgvs[i].setImageResource(imgResult[i]);
+        TextView textMaxTitle = findViewById(R.id.text_max_title);
+        ImageView imgvMax = findViewById(R.id.imgv_max);
+
+        textMaxTitle.setText(imgNames[maxIndex]);
+        imgvMax.setImageResource(imgFileNames[maxIndex]);
+
+        for (int i=0; i< imgNames.length; i++){
+            textVs[i] = findViewById(textIds[i]);
+            ratingBars[i] = findViewById(ratingIds[i]);
+
+            textVs[i].setText(imgNames[i]);
+            ratingBars[i].setRating((float)voteCount[i]);
         }
+
+        Button btnBack = findViewById(R.id.btn_back);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
-    View.OnClickListener btnListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.btnStart:
-                    flipper.startFlipping();
-                    break;
-                case R.id.btnStop:
-                    flipper.stopFlipping();
-                    break;
-            }
-        }
-    };
 }
